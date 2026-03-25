@@ -40,7 +40,7 @@ The system is structured into:
 ## 🎥 System Demonstration
 
 ### Mapping (SLAM)
-![SLAM](Screens/slam.png)
+![SLAM](Screens/Slam.png)
 
 ### Autonomous Navigation
 ![Navigation](Screens/Navigation.png)
