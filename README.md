@@ -72,5 +72,6 @@ The system is structured into:
 ## 📬 Contact
 
 **Ahmed Hassan**  
-📧 Email: [engahmedhassan309@gmail.com](mailto:engahmedhassan309@gmail.com)  
-🔗 LinkedIn: [eng-ahmed-hassan](https://www.linkedin.com/in/eng-ahmed-hassan-ah6100/)
+
+[![Email](https://img.shields.io/badge/Email-engahmedhassan309%40gmail.com-red?style=flat&logo=gmail)](mailto:engahmedhassan309@gmail.com)  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Ahmed%20Hassan-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/eng-ahmed-hassan-ah6100/)
