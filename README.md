@@ -1,5 +1,6 @@
 # ☕ ROS2 Autonomous Cafe Robot
 
+![Robot](Screens/SimulationRobot.png)
 A ROS2-based autonomous mobile robot designed to simulate real-world service scenarios in a café environment, focusing on navigation reliability, sensor fusion, and system integration.
 
 ---
@@ -32,7 +33,7 @@ The system is structured into:
 - **Perception** → LiDAR, IMU
 - **Localization** → EKF sensor fusion
 - **Planning** → SLAM & Navigation2
-- **Control** → ros2_control & motor interface
+- **Control** → ros2_control [Diff Drive Controller]
 
 ---
 
@@ -42,12 +43,7 @@ The system is structured into:
 ![SLAM](Screens/slam.png)
 
 ### Autonomous Navigation
-![Navigation](Screens/navigation.png)
-
-### System Visualization (RViz)
-![RViz](Screens/rviz.png)
-
----
+![Navigation](Screens/Navigation.png)
 
 ## 🔍 Engineering Insights
 
