@@ -32,7 +32,6 @@ warehouse_system/
 │   ├── navigation_parameters.yaml  # Nav2 full stack parameters
 │   ├── ros2_controllers.yaml       # Diff drive controller config
 │   ├── ros_gz_bridge.yaml          # Gazebo <-> ROS 2 topic bridges
-│   └── nav_transform.yaml          # NavSat transform (GPS, optional)
 ├── launch/
 │   ├── navigation.launch.py        # Full system: Gazebo + EKF + Nav2
 │   ├── robot_ekf.launch.py         # Gazebo + EKF only (no Nav2)
@@ -41,7 +40,8 @@ warehouse_system/
 │   ├── robot_state_publisher.launch.py
 │   └── controllers.launch.py
 ├── maps/
-│   └── cafe_world_map.yaml         # Pre-built map of the cafe world
+│   └── cafe_world_map.yaml        # Pre-built map of the cafe world
+│   └── cafe_world_map.pgm         # Photo for the map of the cafe world
 ├── mesh/                           # Robot 3D meshes (.dae)
 ├── model/
 │   └── robot.xacro                 # Robot URDF/XACRO description
@@ -50,7 +50,7 @@ warehouse_system/
 │   └── run_ekf.sh                  # Quick launch: robot + EKF only
 ├── worlds/
 │   ├── cafe.world                  # Cafe simulation environment
-│   └── empty.world                 # Empty world with GPS enabled
+│   └── empty.world                 # Empty world For Testing 
 ├── CMakeLists.txt
 └── package.xml
 ```
