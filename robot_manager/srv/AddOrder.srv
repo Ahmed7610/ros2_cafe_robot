@@ -1,0 +1,6 @@
+string table_id
+string item_name
+---
+bool accepted
+string order_id
+string message
