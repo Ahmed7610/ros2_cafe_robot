@@ -10,17 +10,11 @@
 An autonomous café service robot simulation built using **ROS 2**, **Gazebo**, **Navigation2**, and a **real-time web interface**.
 
 ---
-
 ## 🎥 Demo
 
-> Put your demo video link here.
+Click the image below to watch the full demo:
 
-[![Watch the demo](https://drive.google.com/file/d/1CaP8ql24dPgpTSLmM0ow4gewP7dFd0Ct/view?usp=sharing)](IMAGES/COVER.png)
-
-If you do not have a thumbnail yet, use a normal link:
-
-**Demo Video:** PUT_VIDEO_LINK_HERE
-
+[![Watch the demo](docs/images/demo_thumbnail.png)](https://drive.google.com/file/d/1CaP8ql24dPgpTSLmM0ow4gewP7dFd0Ct/view?usp=sharing)
 ---
 
 ## 📸 System Preview
