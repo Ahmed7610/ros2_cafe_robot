@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Cafe Dashboard</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="page-shell">
+    <div class="page-background"></div>
+
+    <main class="page">
+      <section class="hero-card">
+        <div class="hero-left">
+          <div class="hero-kicker">Smart Restaurant Robotics</div>
+          <h1>Robot Cafe Dashboard</h1>
+          <p class="hero-subtitle">
+            Operator panel for order handling, kitchen release, robot monitoring, and live delivery workflow.
+          </p>
+
+          <div class="mission-box">
+            <span class="mission-label">Current Mission</span>
+            <p class="mission-text" id="robot-mission">Robot is idle in kitchen.</p>
+          </div>
+        </div>
+
+        <div class="hero-right">
+          <div class="hero-chip-row">
+            <div class="hero-chip chip-state" id="state-chip">UNKNOWN</div>
+            <div class="hero-chip chip-location" id="location-chip">Location: --</div>
+            <div class="hero-chip chip-live">● Live</div>
+          </div>
+
+          <div class="battery-panel">
+            <div class="battery-top">
+              <span class="battery-title">Battery Status</span>
+              <span class="battery-value" id="battery-text">0%</span>
+            </div>
+
+            <div class="battery-bar">
+              <div class="battery-fill" id="battery-fill"></div>
+            </div>
+
+            <div class="battery-meta">
+              <span id="battery-health-text">Monitoring robot power level</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="stats-row">
+        <div class="stat-card stat-preparing">
+          <div class="stat-icon">🛠️</div>
+          <div>
+            <p class="stat-label">Preparing</p>
+            <p class="stat-value" id="preparing-count">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-ready">
+          <div class="stat-icon">🍽️</div>
+          <div>
+            <p class="stat-label">Ready</p>
+            <p class="stat-value" id="ready-count">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-onboard">
+          <div class="stat-icon">🤖</div>
+          <div>
+            <p class="stat-label">Onboard</p>
+            <p class="stat-value" id="onboard-count">0</p>
+          </div>
+        </div>
+
+        <div class="stat-card stat-delivered">
+          <div class="stat-icon">✅</div>
+          <div>
+            <p class="stat-label">Delivered</p>
+            <p class="stat-value" id="delivered-count">0</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="main-grid">
+        <section class="card overview-card">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Robot Status</p>
+              <h2>Robot Overview</h2>
+            </div>
+          </div>
+
+          <div class="info-list">
+            <div class="info-row">
+              <span class="label">Current State</span>
+              <span class="value" id="robot-state">UNKNOWN</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Current Location</span>
+              <span class="value" id="current-location">--</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Current Target</span>
+              <span class="value" id="current-target">--</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Waiting Reason</span>
+              <span class="value" id="waiting-reason">--</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Waiting for Release</span>
+              <span class="value" id="waiting-for-release">No</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Low Battery Mode</span>
+              <span class="value" id="low-battery-mode">No</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Robot Load</span>
+              <span class="value" id="robot-load">0 / 3</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Kitchen Load</span>
+              <span class="value" id="kitchen-load">0 orders</span>
+            </div>
+
+            <div class="info-row">
+              <span class="label">Total Orders</span>
+              <span class="value" id="total-orders">0</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="card camera-card">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Live Feed</p>
+              <h2>Robot Camera</h2>
+            </div>
+          </div>
+
+          <div class="camera-box">
+            <img id="camera-feed" src="" alt="Robot camera feed" />
+            <div class="camera-overlay" id="camera-placeholder">
+              <div class="camera-overlay-inner">
+                <div class="camera-icon">📷</div>
+                <p>Camera feed not available</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card add-order-card">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Order Entry</p>
+              <h2>Add New Order</h2>
+            </div>
+          </div>
+
+          <form id="add-order-form" class="order-form">
+            <label for="table-select">Select Table</label>
+            <select id="table-select" name="table_id">
+              <option value="table_1">Table 1</option>
+              <option value="table_2">Table 2</option>
+              <option value="table_3">Table 3</option>
+              <option value="table_4">Table 4</option>
+              <option value="table_5">Table 5</option>
+              <option value="table_6">Table 6</option>
+            </select>
+
+            <label for="item-input">Order Item</label>
+            <input
+              type="text"
+              id="item-input"
+              name="item_name"
+              placeholder="e.g. Latte"
+              required
+            />
+
+            <button type="submit" class="primary-btn">Add Order</button>
+            <p class="action-feedback" id="order-feedback"></p>
+          </form>
+        </section>
+
+        <section class="card kitchen-card">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">Kitchen Control</p>
+              <h2>Release Control</h2>
+            </div>
+          </div>
+
+          <div class="kitchen-panel">
+            <p class="kitchen-status" id="kitchen-status-message">
+              Robot is not waiting in kitchen.
+            </p>
+
+            <button class="primary-btn release-btn" id="release-btn" disabled>
+              Release Robot
+            </button>
+
+            <p class="action-feedback" id="release-feedback"></p>
+          </div>
+        </section>
+      </section>
+
+      <section class="board-section">
+        <div class="board-head">
+          <div>
+            <p class="section-kicker">Workflow</p>
+            <h2>Order Pipeline</h2>
+          </div>
+        </div>
+
+        <div class="orders-board">
+          <div class="board-column preparing-column">
+            <div class="board-column-head">
+              <h3>Preparing</h3>
+              <span class="column-count" id="preparing-count-pill">0</span>
+            </div>
+            <div class="order-list" id="preparing-orders">
+              <div class="empty-state">No orders</div>
+            </div>
+          </div>
+
+          <div class="board-column ready-column">
+            <div class="board-column-head">
+              <h3>Ready in Kitchen</h3>
+              <span class="column-count" id="ready-count-pill">0</span>
+            </div>
+            <div class="order-list" id="ready-orders">
+              <div class="empty-state">No orders</div>
+            </div>
+          </div>
+
+          <div class="board-column onboard-column">
+            <div class="board-column-head">
+              <h3>Onboard</h3>
+              <span class="column-count" id="onboard-count-pill">0</span>
+            </div>
+            <div class="order-list" id="onboard-orders">
+              <div class="empty-state">No orders</div>
+            </div>
+          </div>
+
+          <div class="board-column delivered-column">
+            <div class="board-column-head">
+              <h3>Delivered</h3>
+              <span class="column-count" id="delivered-count-pill">0</span>
+            </div>
+            <div class="order-list" id="delivered-orders">
+              <div class="empty-state">No orders</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    window.initialStatus = {{ status_data | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
