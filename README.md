@@ -15,7 +15,7 @@ An autonomous café service robot simulation built using **ROS 2**, **Gazebo**, 
 
 > Put your demo video link here.
 
-[![Watch the demo](PUT_VIDEO_THUMBNAIL_IMAGE_HERE)](PUT_VIDEO_LINK_HERE)
+[![Watch the demo](PUT_VIDEO_THUMBNAIL_IMAGE_HERE)](IMAGES/COVER.png)
 
 If you do not have a thumbnail yet, use a normal link:
 
@@ -29,19 +29,20 @@ If you do not have a thumbnail yet, use a normal link:
 
 ### Gazebo Simulation
 
-![Gazebo Simulation](ADD_GAZEBO_SCREENSHOT_HERE)
+![Gazebo Simulation](IMAGES/GAZEBO.png)
 
 ### RViz Navigation
 
-![RViz Navigation](ADD_RVIZ_SCREENSHOT_HERE)
+![RViz Navigation](IMAGES/rviz_nav.png)
 
 ### Robot Model
 
-![Robot Model](ADD_ROBOT_MODEL_SCREENSHOT_HERE)
+![Robot Model](IMAGES/gazebo_pic.png)
 
 ### Web Interface
 
-![Web Interface](ADD_WEB_INTERFACE_SCREENSHOT_HERE)
+![Web Interface](IMAGES/WEB1.png)
+![Web Interface](IMAGES/WEB2.png)
 
 ---
 
@@ -414,54 +415,27 @@ With the full system running, you can:
 * simulate a real café workflow
 
 ---
+## 💼 Real-World Value
 
-## 🧠 Skills Demonstrated
+This project is not just a simulation.
 
-This project demonstrates practical experience in:
+It represents a real-world solution for:
 
-* ROS 2
-* Gazebo simulation
-* URDF/Xacro modeling
-* ROS 2 Control
-* Navigation2 (Nav2)
-* EKF sensor fusion
-* task planning and robot logic
-* Flask web integration
-* OpenCV and ROS image processing
+- automated restaurant service
+- warehouse delivery robots
+- hospital delivery systems
+- smart indoor logistics
 
+The system is designed to be scalable and adaptable to real robot hardware.
 ---
 
-## 📷 Suggested Media to Add
-
-To make the repository more attractive, add:
-
-### Screenshots
-
-* Gazebo world overview
-* RViz with robot and navigation path
-* web dashboard screenshot
-* close-up of the robot model
-
-### Video
-
-A short demo video showing:
-
-* system startup
-* placing an order from the web interface
-* robot leaving the kitchen
-* robot delivering to a table
-* live camera feed on the web interface
-
----
 
 ## 👨‍💻 Author
 
 **Ahmed Hassan**
 LinkedIn: https://www.linkedin.com/in/eng-ahmed-hassan-ah6100/
-Email: ADD_YOUR_EMAIL_HERE
+Email: engahmedhassan309@gmail.com
 
 ---
 
-## 🙏 Credits
 
-GrabCAD model credit: ADD_MODEL_LINK_HERE
