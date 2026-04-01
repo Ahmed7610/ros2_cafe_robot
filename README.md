@@ -17,7 +17,7 @@ Click the image below to watch the full demo:
 <a href="https://drive.google.com/file/d/1CaP8ql24dPgpTSLmM0ow4gewP7dFd0Ct/view?usp=sharing" target="_blank">
   <img src="IMAGES/COVER.png" alt="Watch the demo">
 </a>
----
+
 
 ## 📸 System Preview
 
