@@ -1,0 +1,517 @@
+amcl:
+  ros__parameters:
+    alpha1: 0.05
+    alpha2: 0.05
+    alpha3: 0.05
+    alpha4: 0.05
+    alpha5: 0.05
+    set_initial_pose: true  # Setting Initial pose for the robot automatically 
+    always_reset_initial_pose: true # if false the amcl will use the last known position as initial value 
+    initial_pose:
+      x: 1.551
+      y: 6.37
+      z: 0.0
+      yaw: -1.6
+    base_frame_id: "base_link"
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beamskip: false
+    global_frame_id: "map"
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 100.0
+    laser_min_range: -1.0
+    laser_model_type: "likelihood_field"   #### what is this #### 
+    max_beams: 60
+    max_particles: 2000     ### increased is good but it will take more calculations and more from cpu ##
+    min_particles: 500
+    odom_frame_id: "odom"
+    pf_err: 0.05
+    pf_z: 0.99
+    recovery_alpha_fast: 0.0
+    recovery_alpha_slow: 0.0
+    resample_interval: 1
+    robot_model_type: "nav2_amcl::DifferentialMotionModel" # Use "nav2_amcl::DifferentialMotionModel" if you have a differential drive robot
+    save_pose_rate: 0.5
+    sigma_hit: 0.2
+    tf_broadcast: true # map to odom frame transform
+    transform_tolerance: 1.0
+    update_min_a: 0.05
+    update_min_d: 0.05
+    z_hit: 0.5
+    z_max: 0.05
+    z_rand: 0.5
+    z_short: 0.05
+    scan_topic: scan
+
+bt_navigator:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: robot_body
+    odom_topic: /odometry/filtered
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    wait_for_service_timeout: 1000
+    action_server_result_timeout: 900.0
+    navigators: ["navigate_to_pose", "navigate_through_poses"] # 2 types of navigation
+    navigate_to_pose:
+      plugin: "nav2_bt_navigator::NavigateToPoseNavigator" # the plugin used for single pose 
+    navigate_through_poses:
+      plugin: "nav2_bt_navigator::NavigateThroughPosesNavigator" # the plugin used for multi points goals 
+    
+
+    error_code_names:  # if the goal failed who is resbonsible planner or controller
+      - compute_path_error_code #planner
+      - follow_path_error_code  #controller
+
+
+controller_server:
+  ros__parameters:
+    controller_frequency: 5.0
+    costmap_update_timeout: 0.30
+
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5 # 0.5 for differential drive robots that have no y velocity
+    min_theta_velocity_threshold: 0.001  # those the smallest values can controllers make it as a motion lower than that will treated like noise  
+
+    failure_tolerance: 0.3
+    odom_topic: "/odometry/filtered"
+    progress_checker_plugins: ["progress_checker"] # controller must be sure the robot really moves 
+    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    controller_plugins: ["FollowPath"]
+    use_realtime_priority: false
+
+    # Progress checker parameters
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5 # if the robot doesn't move at least X meter in 
+      movement_time_allowance: 10.0 # duration X seconds the robot treated as stuck and will recovery 
+
+
+
+    general_goal_checker:
+      stateful: True
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.35  # the robot considered reach its goal if the distance below X meter 
+      yaw_goal_tolerance: 0.50    # the robot considered reach its goal if the angle is equal to x angle  below 
+
+    FollowPath:
+      # Model Predictive Path Integral Controller
+      plugin: "nav2_mppi_controller::MPPIController" # the used controller 
+      time_steps: 15  ## THE NUMBER OF STEPS THE CONTROLLER WILL CALCULATE ITS PATH ON IT [.2 * 15 = 3 SECONDS] HE SENDS THE COMMANDS IF THE ROBOT THAT PATH FOR 3 SECONDS IT WILL BE FINE 
+                                                                                                                          #AND THESE PROCESS WILL BE REPEATED EVERY .2 SECONDS
+      model_dt: 0.2 # Set to the duration of the control frequency
+      batch_size: 10000  # the number of paths the control will calculate then chooses the best one (the lower cost)
+      ax_max: 3.0
+      ax_min: -3.0
+      ay_max: 3.0
+      az_max: 3.5
+      vx_std: 0.2
+      vy_std: 0.2
+      wz_std: 0.4
+      vx_max: 0.5 #max linear speed # These acceleration and velocity parameters are where you should start tuning
+      vx_min: 0.0 
+      vy_max: 0.5
+      wz_max: 1.9 # max angular speed 
+      iteration_count: 1
+      prune_distance: 1.7
+      transform_tolerance: 0.1
+      temperature: 0.3
+      gamma: 0.015
+      motion_model: "DiffDrive" 
+      visualize: false
+      regenerate_noises: false
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      critics: [   # the cost of the path 
+        "ConstraintCritic", "CostCritic", "GoalCritic",
+        "GoalAngleCritic", "PathAlignCritic", "PathAngleCritic",
+        "PathFollowCritic", "PreferForwardCritic", "TwirlingCritic"] # THSES PARAMETERS HELP CONTROLLERS TO CALCULATE THE COST OF THE TRAJECTORY HE CREATED 
+      ConstraintCritic:  #IS THIS MAKE ME MORE CLOSE THE TARGET 
+        enabled: true
+        cost_power: 1
+        cost_weight: 4.0
+      CostCritic: 
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.81
+        near_collision_cost: 253
+        critical_cost: 300.0
+        consider_footprint: false
+        collision_cost: 1000000.0  # if the path cost collision its very big cost (10000) 
+        near_goal_distance: 1.0
+        trajectory_point_step: 2
+      GoalCritic:  # for the path near the goal 
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 1.4
+      GoalAngleCritic: 
+        enabled: true
+        cost_power: 1
+        cost_weight: 3.0
+        threshold_to_consider: 0.5
+      PathAlignCritic: #try to make the robot aligned with tha path 
+        enabled: true
+        cost_power: 1
+        cost_weight: 14.0
+        max_path_occupancy_ratio: 0.05
+        trajectory_point_step: 4
+        threshold_to_consider: 0.5
+        offset_from_furthest: 20
+        use_path_orientations: false
+      PathAngleCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 2.0
+        offset_from_furthest: 4
+        threshold_to_consider: 0.5
+        max_angle_to_furthest: 1.0
+        mode: 0
+      PathFollowCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        offset_from_furthest: 5
+        threshold_to_consider: 1.4
+      PreferForwardCritic:
+        enabled: true
+        cost_power: 1
+        cost_weight: 5.0
+        threshold_to_consider: 0.5
+      TwirlingCritic:
+        enabled: true
+        twirling_cost_power: 1
+        twirling_cost_weight: 10.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0  #the map pdated 5 times per second
+      publish_frequency: 5.0  # publishing map 5 times in second in ros 
+      global_frame: odom  #it's normal for local map to be attached to odom not map frame 
+      robot_base_frame: robot_body
+      rolling_window: true  # the map will move with robot #if false the square 5*5 will be around the robot in the center only not moves with robot 
+      width: 5
+      height: 5   # the dimension of small map around the robot 
+      resolution: 0.05
+      robot_radius: 0.455  # Based on half of the robot's width (300mm / 2 = 150mm)
+      plugins: ["obstacle_layer", "voxel_layer", "denoise_layer", "inflation_layer"]
+      obstacle_layer: #the one who takes data from lidar 
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          raytrace_min_range: 0.20  #Anything under 20 cm ignore it    
+          obstacle_min_range: 0.20  #Anything under 20 cm ignore it  
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      voxel_layer: #special with 3d lidar 
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: False
+        publish_voxel_map: False
+        origin_z: 0.0
+        z_resolution: 0.2
+        z_voxels: 10
+        min_obstacle_height: 0.0
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: realsense1
+        realsense1:
+          topic: /cam_1/depth/color/points
+          raytrace_min_range: 0.05
+          raytrace_max_range: 1.25
+          obstacle_min_range: 0.05
+          obstacle_max_range: 1.25
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0
+          clearing: False
+          marking: True
+          data_type: "PointCloud2"
+      denoise_layer:
+        plugin: "nav2_costmap_2d::DenoiseLayer"
+        enabled: true
+        minimal_group_size: 2
+        group_connectivity_type: 8
+      inflation_layer: # the most important layer after obstacle 
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0 #the speed of falling of the cost     ## more it big more the robot will move away of the obstacle 
+        inflation_radius: 0.85  #any obstacle will be around it something like warning area if you come close more cost  ## make it big make the margin decrease more fast so it's good for narrow paths 
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer" # this publish the whole map instead of publishing the changes only 
+        map_subscribe_transient_local: True
+      always_send_full_costmap: True
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 5.0
+      global_frame: map
+      robot_base_frame: robot_body
+      robot_radius: 0.455  # Robot width is 300mm
+      resolution: 0.05
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "voxel_layer", "inflation_layer"]
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          raytrace_min_range: 0.20
+          obstacle_min_range: 0.20
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: False
+        publish_voxel_map: False
+        origin_z: 0.0
+        z_resolution: 0.2
+        z_voxels: 10
+        min_obstacle_height: 0.0
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: realsense1
+        realsense1:
+          topic: /cam_1/depth/color/points
+          raytrace_min_range: 0.05
+          raytrace_max_range: 1.25
+          obstacle_min_range: 0.05
+          obstacle_max_range: 1.25
+          min_obstacle_height: 0.0
+          max_obstacle_height: 2.0
+          clearing: False
+          marking: True
+          data_type: "PointCloud2"
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 5.0  ## Edit those parameters in local map and global map will edit the margin of obstacles which the robot have to avoid 
+        inflation_radius: 0.85
+      always_send_full_costmap: True
+
+map_saver:
+  ros__parameters:
+    save_map_timeout: 5.0 # the map will wait 5 sec to take the map from map topic
+    free_thresh_default: 0.25 
+    occupied_thresh_default: 0.65
+    map_subscribe_transient_local: True
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+    planner_plugins: ["GridBased"] # there is another kinds of planners 
+    GridBased:
+      plugin: "nav2_navfn_planner::NavfnPlanner"
+      tolerance: 0.5 #if the goal unreachable we can make a goal near to teh goal by .5 meter 
+      use_astar: false
+      allow_unknown: true #if the map has unknown areas [gray areas] the robot can move through it # if false will treat hte gray areas as obtacles 
+      #in slam we can make it tru #in finished map can make it false 
+smoother_server:
+  ros__parameters:
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10 # the algorithm will continue to modifying the path until reach to this percentage of error really small
+      max_its: 1000  # the number of trials to reach to tolerance 
+      do_refinement: True # after smoothign will make an extra moddifying 
+
+behavior_server:
+  ros__parameters:
+    local_costmap_topic: local_costmap/costmap_raw
+    global_costmap_topic: global_costmap/costmap_raw
+    local_footprint_topic: local_costmap/published_footprint
+    global_footprint_topic: global_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+    spin:
+      plugin: "nav2_behaviors::Spin"
+    backup:
+      plugin: "nav2_behaviors::BackUp"
+    drive_on_heading:
+      plugin: "nav2_behaviors::DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors::Wait"
+    assisted_teleop:
+      plugin: "nav2_behaviors::AssistedTeleop"
+    local_frame: odom
+    global_frame: map
+    robot_base_frame: robot_body
+    transform_tolerance: 0.1
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 0.50
+    min_rotational_vel: 0.40
+    rotational_acc_lim: 3.2
+
+waypoint_follower:
+  ros__parameters:
+    loop_rate: 5
+    stop_on_failure: false
+    action_server_result_timeout: 900.0
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: True
+      waypoint_pause_duration: 10
+
+velocity_smoother:
+  ros__parameters:
+    smoothing_frequency: 20.0
+    scale_velocities: False
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.5, 0.5, 2.5]
+    min_velocity: [-0.5, -0.5, -2.5]
+    max_accel: [0.3, 0.3, 3.2]
+    max_decel: [-0.5, -0.5, -3.2]
+    odom_topic: "/odometry/filtered"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0
+
+collision_monitor:
+  ros__parameters:
+    base_frame_id: "base_link"
+    odom_frame_id: "odom"
+    cmd_vel_in_topic: "cmd_vel_smoothed"
+    cmd_vel_out_topic: "cmd_vel"
+    state_topic: "collision_monitor_state"
+    transform_tolerance: 0.2
+    source_timeout: 1.0
+    base_shift_correction: True
+    stop_pub_timeout: 2.0
+
+    polygons: ["FootprintApproach"]
+    FootprintApproach:
+      type: "polygon"
+      action_type: "approach"
+      footprint_topic: "/local_costmap/published_footprint"
+      time_before_collision: 1.2
+      simulation_time_step: 0.1
+      min_points: 6
+      visualize: False
+      enabled: True
+    observation_sources: ["scan"]
+    scan:
+      type: "scan"
+      topic: "scan"
+      min_height: 0.15
+      max_height: 2.0
+      enabled: True
+
+docking_server:
+  ros__parameters:
+    controller_frequency: 10.0
+    initial_perception_timeout: 20.0  # Default 5.0
+    wait_charge_timeout: 5.0
+    dock_approach_timeout: 30.0
+    undock_linear_tolerance: 0.05
+    undock_angular_tolerance: 0.05
+    max_retries: 3
+    base_frame: "base_link"
+    fixed_frame: "odom"
+    dock_backwards: false
+    dock_prestaging_tolerance: 0.5
+
+    # Types of docks
+    dock_plugins: ['rosmaster_x3_dock']
+    rosmaster_x3_dock:
+      plugin: 'opennav_docking::SimpleChargingDock'
+      docking_threshold: 0.02
+      staging_x_offset: 0.75
+      staging_yaw_offset: 3.14
+      use_external_detection_pose: true
+      use_battery_status: false
+      use_stall_detection: false
+      stall_velocity_threshold: 1.0
+      stall_effort_threshold: 1.0
+      charging_threshold: 0.5
+
+      external_detection_timeout: 1.0
+      external_detection_translation_x: -0.18
+      external_detection_translation_y: 0.0
+      external_detection_rotation_roll: -1.57
+      external_detection_rotation_pitch: 1.57
+      external_detection_rotation_yaw: 0.0
+      filter_coef: 0.1
+
+
+slam_toolbox:
+  ros__parameters:
+
+    # Plugin params
+    solver_plugin: solver_plugins::CeresSolver
+    ceres_linear_solver: SPARSE_NORMAL_CHOLESKY
+    ceres_preconditioner: SCHUR_JACOBI
+    ceres_trust_strategy: LEVENBERG_MARQUARDT
+    ceres_dogleg_type: TRADITIONAL_DOGLEG
+    ceres_loss_function: None
+
+    # ROS Parameters
+    odom_frame: odom
+    map_frame: map
+    base_frame: base_link
+    scan_topic: /scan
+    use_map_saver: true
+    mode: mapping #localization
+
+
+
+    debug_logging: false
+    throttle_scans: 1
+    transform_publish_period: 0.02 #if 0 never publishes odometry
+    map_update_interval: 5.0
+    resolution: 0.05
+    max_laser_range: 20.0 #for rastering images
+    minimum_time_interval: 0.5
+    transform_timeout: 0.2
+    tf_buffer_duration: 30.
+    stack_size_to_use: 40000000 #// program needs a larger stack size to serialize large maps
+    enable_interactive_mode: true
+
+    # General Parameters
+    use_scan_matching: true
+    use_scan_barycenter: true
+    minimum_travel_distance: 0.5
+    minimum_travel_heading: 0.5
+    scan_buffer_size: 10
+    scan_buffer_maximum_scan_distance: 10.0
+    link_match_minimum_response_fine: 0.1
+    link_scan_maximum_distance: 1.5
+    loop_search_maximum_distance: 3.0
+    do_loop_closing: true
+    loop_match_minimum_chain_size: 10
+    loop_match_maximum_variance_coarse: 3.0
+    loop_match_minimum_response_coarse: 0.35
+    loop_match_minimum_response_fine: 0.45
+
+    # Correlation Parameters - Correlation Parameters
+    correlation_search_space_dimension: 0.5
+    correlation_search_space_resolution: 0.01
+    correlation_search_space_smear_deviation: 0.1
+
+    # Correlation Parameters - Loop Closure Parameters
+    loop_search_space_dimension: 8.0
+    loop_search_space_resolution: 0.05
+    loop_search_space_smear_deviation: 0.03
+
+    # Scan Matcher Parameters
+    distance_variance_penalty: 0.5
+    angle_variance_penalty: 1.0
+
+    fine_search_angle_offset: 0.00349
+    coarse_search_angle_offset: 0.349
+    coarse_angle_resolution: 0.0349
+    minimum_angle_penalty: 0.9
+    minimum_distance_penalty: 0.5
+    use_response_expansion: true
