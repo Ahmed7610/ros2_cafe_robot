@@ -1,106 +1,260 @@
-# ☕ ROS2 Autonomous Cafe Robot
+# ☕ Cafe Robot System (ROS 2)
 
-![Robot](Screens/SimulationRobot.png)
-A ROS2-based autonomous mobile robot designed to simulate real-world service scenarios in a café environment, focusing on navigation reliability, sensor fusion, and system integration.
+An autonomous café service robot simulation built using ROS 2, Gazebo, Navigation2, and a real-time web interface.
 
 ---
 
 ## 🚀 Project Overview
 
-This project implements a full robotics pipeline, from robot modeling to autonomous navigation, with an emphasis on building a system that behaves consistently rather than just functionally.
+This project represents a complete robotic system designed to simulate an autonomous café service robot.
+
+The robot is capable of:
+
+* Navigating autonomously inside a café environment
+* Receiving and managing multiple orders
+* Delivering items efficiently based on optimal routing
+* Streaming live camera feed
+* Providing real-time status updates through a web interface
 
 ---
 
-## Package Structure
+## 🧠 System Architecture
+
+The system is divided into three main packages:
+
+* **robot_cafe_sim**
+
+  * Robot modeling (URDF/Xacro)
+  * Gazebo simulation
+  * Sensors integration
+  * Navigation (Nav2)
+  * EKF localization
+
+* **robot_manager**
+
+  * Task management logic
+  * Order handling system
+  * Robot decision making
+  * Services & communication
+
+* **robot_manager_interface**
+
+  * Web dashboard (Flask)
+  * ROS integration
+  * Live robot monitoring
+  * Camera streaming
+
+---
+
+## 🤖 Robot Modeling (URDF/Xacro)
+
+* Imported base model from GrabCAD
+* Defined all links and joints
+* Structured using Xacro for flexibility
+* Added sensor frames and mounting points
+
+---
+
+## 🌍 Simulation (Gazebo)
+
+A complete café environment was created including:
+
+* 6 customer tables
+* Kitchen area
+* Charging station
+
+### 🔧 Sensors Integrated:
+
+* LiDAR (for mapping & navigation)
+* Camera (RGB image stream)
+* IMU (orientation and motion)
+
+Each sensor is connected using Gazebo plugins and ROS bridges.
+
+---
+
+## ⚙️ ROS2 Control
+
+The robot is controlled using:
+
+* `diff_drive_controller` → movement
+* `joint_state_broadcaster` → state publishing
+
+---
+
+## 🧭 Localization & Sensor Fusion
+
+Implemented **Extended Kalman Filter (EKF)** to fuse:
+
+* IMU data
+* Odometry data
+
+Generated a stable topic:
 
 ```
-ros2_cafe_robot/
-├── config/
-│   ├── ekf.yaml                    # EKF sensor fusion config
-│   ├── navigation_parameters.yaml  # Nav2 full stack parameters
-│   ├── ros2_controllers.yaml       # Diff drive controller config
-│   ├── ros_gz_bridge.yaml          # Gazebo <-> ROS 2 topic bridges
-├── launch/
-│   ├── navigation.launch.py        # Full system: Gazebo + EKF + Nav2
-│   ├── robot_ekf.launch.py         # Gazebo + EKF only (no Nav2)
-│   ├── robot_launch.launch.py      # Gazebo + robot only
-│   ├── ekf_launch.launch.py        # EKF node only
-│   ├── robot_state_publisher.launch.py
-│   └── controllers.launch.py
-├── maps/
-│   └── cafe_world_map.yaml         # Pre-built map of the cafe world
-├── mesh/                           # Robot 3D meshes (.dae)
-├── model/
-│   └── robot.xacro                 # Robot URDF/XACRO description
-├── scripts/
-│   ├── run_navigation.sh           # Quick launch: full navigation
-│   └── run_ekf.sh                  # Quick launch: robot + EKF only
-├── worlds/
-│   ├── cafe.world                  # Cafe simulation environment
-│   └── empty.world                 # Empty world For Testing
-├── CMakeLists.txt
-└── package.xml
+/odometry/filtered
+```
+
+This is used in both:
+
+* SLAM
+* Navigation
+
+---
+
+## 🗺️ Navigation (Nav2)
+
+* Configured Navigation2 stack
+* Tuned parameters based on robot dimensions
+* Implemented AMCL auto-initial pose (no manual reset)
+
+---
+
+## 📦 Task Management System
+
+A custom system was built to simulate real café operations:
+
+* Robot waits in kitchen until release
+* Can carry up to 3 orders
+* Chooses nearest destination dynamically
+* Handles:
+
+  * Preparing orders
+  * Ready orders
+  * Delivered orders
+* Simulated battery behavior
+* Tracks delivery statistics
+
+---
+
+## 🌐 Web Interface (Flask)
+
+A full dashboard was developed:
+
+### Features:
+
+* Real-time robot status
+* Place new orders
+* Release robot from kitchen
+* View robot state & metrics
+* Live camera streaming from ROS topic
+
+### Technologies Used:
+
+* Flask (Backend)
+* ROS 2 (Integration)
+* OpenCV + cv_bridge (Camera streaming)
+
+---
+
+## 📸 Demo
+
+> 📌 Add screenshots here:
+
+* Gazebo simulation
+* RViz navigation
+* Robot model
+* Web interface
+
+---
+
+## 🎥 Demo Video
+
+> 📌 Add demo video link here
+
+---
+
+## 🛠️ Installation
+
+```bash
+cd ~/your_ws
+git clone <your-repo>
+colcon build
+source install/setup.bash
 ```
 
 ---
 
-## ⚙️ Core Capabilities
+## ⚠️ Important (Gazebo Setup)
 
-- Custom robot modeling using URDF
-- Sensor integration (LiDAR, IMU)
-- Motion control using ros2_control (diff drive)
-- EKF-based sensor fusion for stable odometry
-- SLAM-based mapping
-- Autonomous navigation using Navigation2
-- Command bridging between navigation and low-level controller
-- Realistic café simulation environment in Gazebo
+To load models and worlds correctly, you must export:
 
----
+```bash
+export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/your_ws/src
+export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/your_ws/src/robot_cafe_sim
+```
 
-## 🏗️ System Architecture
+To make it permanent:
 
-![Architecture](Screens/architecture.png)
-
-The system is structured into:
-
-- **Perception** → LiDAR, IMU
-- **Localization** → EKF sensor fusion
-- **Planning** → SLAM & Navigation2
-- **Control** → ros2_control [Diff Drive Controller]
+```bash
+echo 'export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/your_ws/src' >> ~/.bashrc
+echo 'export GZ_SIM_RESOURCE_PATH=$GZ_SIM_RESOURCE_PATH:~/your_ws/src/robot_cafe_sim' >> ~/.bashrc
+source ~/.bashrc
+```
 
 ---
 
-## 🎥 System Demonstration
+## ▶️ Usage
 
-### Mapping (SLAM)
-![SLAM](Screens/Slam.png)
+### 1️⃣ Run SLAM (First Time Only)
 
-### Autonomous Navigation
-![Navigation](Screens/Navigation.png)
+```bash
+ros2 launch robot_cafe_bringup bringup.launch.py slam_mode:=true
+```
 
-## 🔍 Engineering Insights
-
-- Designed a consistent command flow from Navigation2 to low-level control
-- Improved odometry stability using EKF fusion of IMU and encoder data
-- Handled TF conflicts by isolating odometry sources
-- Built a modular pipeline that reflects real-world robotics system design
+Save the generated map.
 
 ---
 
-## 🛠️ Tech Stack
+### 2️⃣ Run Full System
 
-- ROS2
-- Python
-- Navigation2
-- robot_localization (EKF)
-- Gazebo
-- RViz
+```bash
+ros2 launch robot_cafe_bringup bringup.launch.py
+```
 
 ---
 
-## 📬 Contact
+## 🌐 Web Interface
 
-**Ahmed Hassan**  
+The interface will open automatically:
 
-[![Email](https://img.shields.io/badge/Email-engahmedhassan309%40gmail.com-red?style=flat&logo=gmail)](mailto:engahmedhassan309@gmail.com)  
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Ahmed%20Hassan-blue?style=flat&logo=linkedin)](https://www.linkedin.com/in/eng-ahmed-hassan-ah6100/)
+```
+http://localhost:5000
+```
+
+---
+
+## 🧪 What You Can Do
+
+* Send orders to robot
+* Monitor robot status
+* Watch live camera feed
+* Track deliveries
+* Simulate real café workflow
+
+---
+
+## 🧠 Skills Demonstrated
+
+* ROS 2 (Nodes, Topics, Services)
+* Gazebo Simulation
+* URDF/Xacro Modeling
+* Navigation2 (Nav2)
+* Sensor Fusion (EKF)
+* Path Planning & Task Logic
+* Python + Flask Integration
+* OpenCV + ROS Image Processing
+
+---
+
+## 👨‍💻 Author
+
+Ahmed Hassan
+🔗 LinkedIn: https://www.linkedin.com/in/eng-ahmed-hassan-ah6100/
+📧 Email: *(add your email here)*
+
+---
+
+## 🙏 Credits
+
+> 📌 Add GrabCAD model link here
