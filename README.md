@@ -14,7 +14,9 @@ An autonomous café service robot simulation built using **ROS 2**, **Gazebo**, 
 
 Click the image below to watch the full demo:
 
-[![Watch the demo](IMAGES/COVER.png)](https://drive.google.com/file/d/1CaP8ql24dPgpTSLmM0ow4gewP7dFd0Ct/view?usp=sharing)
+<a href="https://drive.google.com/file/d/1CaP8ql24dPgpTSLmM0ow4gewP7dFd0Ct/view?usp=sharing" target="_blank">
+  <img src="IMAGES/COVER.png" alt="Watch the demo">
+</a>
 ---
 
 ## 📸 System Preview
